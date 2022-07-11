@@ -12,26 +12,26 @@ class TodoService(model: Model):
 
   import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
   import org.http4s.dsl.io.*
+  import Codecs.given
 
   object Description extends QueryParamDecoderMatcher[String]("description")
 
   val service: HttpRoutes[IO] =
-
-    HttpRoutes.of[IO]{
+    HttpRoutes.of[IO] {
 
       case GET -> Root / "task" / IntVar(id) =>
         model.read(Id(id)) match
-          case None => NotFound()
+          case None       => NotFound()
           case Some(task) => Ok(task.asJson)
 
-      case req@POST -> Root / "task" =>
-        req.decode[Task]{ task =>
+      case req @ POST -> Root / "task" =>
+        req.decode[Task] { task =>
           val id = model.create(task)
           Ok(id)
         }
 
-      case req@POST -> Root / "task" / IntVar(id) =>
-        req.decode[Task]{ task =>
+      case req @ POST -> Root / "task" / IntVar(id) =>
+        req.decode[Task] { task =>
           val updated = model.update(Id(id))(_ => task)
           Ok(updated)
         }
@@ -45,7 +45,7 @@ class TodoService(model: Model):
 
       case POST -> Root / "task" / IntVar(id) / "complete" =>
         model.complete(Id(id)) match
-          case None => NotFound()
+          case None       => NotFound()
           case Some(task) => Ok(task.asJson)
 
       case GET -> Root / "tasks" =>

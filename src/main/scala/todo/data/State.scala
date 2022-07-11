@@ -1,21 +1,19 @@
-package todo
-package data
+package todo.data
 
 import java.time.ZonedDateTime
-
 
 enum State:
 
   def completed: Boolean =
     this match {
       case _: State.Completed => true
-      case _ => false
+      case _                  => false
     }
 
   def active: Boolean =
     this match {
       case State.Active => true
-      case _ => false
+      case _            => false
     }
 
   case Active

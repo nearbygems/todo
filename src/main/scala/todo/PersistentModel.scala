@@ -10,7 +10,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import scala.collection.mutable
 
-object PersistentModel extends Model :
+object PersistentModel extends Model:
+
+  import Codecs.given
 
   val tasksPath = Paths.get("tasks.json")
   val idPath    = Paths.get("id.json")
@@ -46,7 +48,7 @@ object PersistentModel extends Model :
 
     decode[A](str) match {
       case Right(result) => result
-      case Left(error) => throw error
+      case Left(error)   => throw error
     }
 
   }
@@ -61,13 +63,12 @@ object PersistentModel extends Model :
 
   def update(id: Id)(f: Task => Task): Option[Task] =
     val opt = tasks.toMap
-                   .get(id)
-                   .map(f)
+      .get(id)
+      .map(f)
     if (opt.nonEmpty) then {
       saveTasks(Tasks(tasks.toMap + (id -> opt.get)))
     }
     opt
-
 
   def delete(id: Id): Boolean =
     saveTasks(Tasks(tasks.toMap - id))
@@ -75,20 +76,22 @@ object PersistentModel extends Model :
 
   def tasks: Tasks = loadTasks()
 
-  def tasks(tag: Tag): Tasks = Tasks(tasks.toMap
-                                          .filter((id, task) => task.tags.contains(tag)))
+  def tasks(tag: Tag): Tasks = Tasks(
+    tasks.toMap
+      .filter((id, task) => task.tags.contains(tag))
+  )
 
   def complete(id: Id): Option[Task] = update(id)(task => task.copy(state = State.completedNow))
 
-  def tags: Tags = Tags(tasks.toMap
-                             .flatMap((id, task) => task.tags)
-                             .toList
-                             .distinct)
+  def tags: Tags = Tags(
+    tasks.toMap
+      .flatMap((id, task) => task.tags)
+      .toList
+      .distinct
+  )
 
   def clear(): Unit =
     def deleteFile(path: Path): Unit = if Files.exists(path) then Files.delete(path)
 
     deleteFile(idPath)
     deleteFile(tasksPath)
-
-

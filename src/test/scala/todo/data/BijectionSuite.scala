@@ -1,25 +1,27 @@
-package todo
-package data
+package todo.data
 
 import io.circe.*
 import io.circe.syntax.*
 
-class BijectionSuite extends munit.FunSuite :
+class BijectionSuite extends munit.FunSuite:
 
-  def testBijection[A](name:     String,
-                       original: A)(using loc: munit.Location, codec: Codec[A]): Unit = {
+  import Codecs.given
 
-    test(name){
+  def testBijection[A](name: String, original: A)(using
+      loc: munit.Location,
+      codec: Codec[A]
+  ): Unit = {
+
+    test(name) {
 
       val decoded = original.asJson.as[A]
 
       decoded match {
         case Right(o) => assertEquals(original, o)
-        case Left(e) => fail(
-          s"""Bijection failed for $name
-             |Value: $original
-             |JSON:  ${ original.asJson.spaces2 }
-             |Error: ${ e.toString }""".stripMargin)
+        case Left(e) => fail(s"""Bijection failed for $name
+                                |Value: $original
+                                |JSON:  ${original.asJson.spaces2}
+                                |Error: ${e.toString}""".stripMargin)
       }
 
     }
@@ -27,7 +29,8 @@ class BijectionSuite extends munit.FunSuite :
   }
 
   val task1 = Task(State.Active, "Description", Some("Notes"), List(Tag("a"), Tag("b")))
-  val task2 = Task(State.completedNow, "Get this done", Some("Like dinner"), List(Tag("x"), Tag("y")))
+  val task2 =
+    Task(State.completedNow, "Get this done", Some("Like dinner"), List(Tag("x"), Tag("y")))
 
   val tasks = Tasks(List(Id(1) -> task1, Id(2) -> task2))
 

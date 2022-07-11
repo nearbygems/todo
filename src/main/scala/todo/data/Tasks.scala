@@ -1,6 +1,4 @@
-package todo
-package data
-
+package todo.data
 
 final case class Tasks(tasks: Iterable[(Id, Task)]):
 
